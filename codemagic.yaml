@@ -10,17 +10,14 @@ workflows:
     scripts:
       - name: Get Flutter dependencies
         script: |
-          cd charles_autos_frontend
           flutter pub get
       - name: Build Android App Bundle
         script: |
-          cd charles_autos_frontend
           flutter build appbundle --release --no-pub
       - name: Build iOS IPA (Unsigned)
         script: |
-          cd charles_autos_frontend
           flutter build ipa --release --no-codesign --no-pub
     artifacts:
-      - charles_autos_frontend/build/**/outputs/**/*.aab
-      - charles_autos_frontend/build/**/outputs/**/*.apk
-      - charles_autos_frontend/build/ios/iphoneos/*.ipa
+      - build/**/outputs/**/*.aab
+      - build/**/outputs/**/*.apk
+      - build/ios/iphoneos/*.ipa

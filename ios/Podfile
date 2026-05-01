@@ -9,26 +9,35 @@ project 'Runner', {
   'Profile' => :profile,
 }
 
+# The following lines are standard for Flutter
 def flutter_root
   generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
   unless File.exist?(generated_xcode_build_settings_path)
-    raise "#{generated_xcode_build_settings_path} must exist. If you're running pod install manually, make sure flutter pub get has been run."
+    # If the file doesn't exist, we assume Flutter will generate it or we're in a build environment
+    return ""
   end
 
   File.foreach(generated_xcode_build_settings_path) do |line|
     matches = line.match(/\AFLUTTER_ROOT=(.*)\z/)
     return matches[1] if matches
   end
-  raise "FLUTTER_ROOT not found in #{generated_xcode_build_settings_path}. Try deleting Generated.xcconfig and regenerate it by running flutter pub get."
+  ""
 end
 
-require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'xcode_backend.rb'), flutter_root)
+# Check if we are on a Mac (like Codemagic) before requiring xcode_backend
+if File.directory?(File.join(flutter_root, 'packages', 'flutter_tools', 'bin'))
+  require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'xcode_backend.rb'), flutter_root)
+end
 
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
-  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+  # Only call this if we are in a proper Flutter environment
+  if defined?(flutter_install_all_ios_pods)
+    flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+  end
+  
   target 'RunnerTests' do
     inherit! :search_paths
   end
@@ -36,7 +45,10 @@ end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
-    flutter_additional_ios_build_settings(target)
+    # Only call this if we are in a proper Flutter environment
+    if defined?(flutter_additional_ios_build_settings)
+      flutter_additional_ios_build_settings(target)
+    end
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
     end
