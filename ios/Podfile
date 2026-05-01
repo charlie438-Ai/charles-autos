@@ -11,6 +11,9 @@ project 'Runner', {
 
 # The following lines are standard for Flutter
 def flutter_root
+  # Try to get FLUTTER_ROOT from environment (common in CI/CD)
+  return ENV['FLUTTER_ROOT'] if ENV['FLUTTER_ROOT']
+
   generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
   unless File.exist?(generated_xcode_build_settings_path)
     # If the file doesn't exist, we assume Flutter will generate it or we're in a build environment
