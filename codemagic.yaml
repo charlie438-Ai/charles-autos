@@ -11,6 +11,8 @@ workflows:
       - name: Get Flutter dependencies
         script: |
           flutter pub get
+          echo "Listing ios/Flutter directory for debugging:"
+          ls ios/Flutter
       - name: Build Android App Bundle
         script: |
           flutter build appbundle --release --no-pub
