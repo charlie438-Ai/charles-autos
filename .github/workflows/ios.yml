@@ -24,8 +24,16 @@ jobs:
       - name: Build IPA (Unsigned)
         run: flutter build ipa --release --no-codesign
 
+      - name: Package Unsigned IPA
+        run: |
+          mkdir -p Payload
+          # Find the .app bundle and copy it to Payload
+          find build/ios/archive/Runner.xcarchive/Products/Applications -name "*.app" -exec cp -r {} Payload/ \;
+          # Zip it into an .ipa file
+          zip -r CharlesAutos.ipa Payload
+          
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
           name: ios-ipa
-          path: build/ios/iphoneos/*.ipa
+          path: CharlesAutos.ipa
